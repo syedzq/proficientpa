@@ -48,6 +48,10 @@ export default function Home() {
     }
   }, [preferences]);
 
+  useEffect(() => {
+    initializeSession();
+  }, [initializeSession]);
+
   const handleAnswer = (selectedOption: number) => {
     setAnsweredQuestions(prev => new Set(prev).add(currentQuestionIndex));
     const isCorrect = selectedOption === sessionQuestions[currentQuestionIndex].correctAnswer;

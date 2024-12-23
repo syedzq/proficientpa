@@ -104,9 +104,11 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <h2 className="text-2xl font-crimson font-bold text-gray-900 mb-4">
                   Select Covered Topics
                 </h2>
-                <p className="text-gray-600 mb-6 font-geist">
-                  Choose the categories you've already covered in your PA program.
-                  They're arranged in typical curriculum order.
+                <p className="text-lg text-gray-600 mb-8">
+                  Let&apos;s personalize your study experience! We&apos;ll help you focus on the topics you need to master.
+                </p>
+                <p className="text-lg text-gray-600 mb-8">
+                  Don&apos;t worry, you can always change these settings later.
                 </p>
                 <div className="space-y-3">
                   {ORDERED_CATEGORIES.map((category) => (
