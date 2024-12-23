@@ -209,7 +209,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                   Question Difficulty
                 </h2>
                 <p className="text-gray-600 mb-6 font-geist">
-                  Select the difficulty levels you'd like to practice with.
+                  Select the difficulty levels you&apos;d like to practice with.
                 </p>
                 <div className="flex gap-3">
                   {['easy', 'medium', 'hard'].map((difficulty) => (
