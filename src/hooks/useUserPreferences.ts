@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Cookies from 'js-cookie';
+import { useUser } from '@clerk/nextjs';
 
 export interface UserPreferences {
   categories: string[];
@@ -8,35 +8,49 @@ export interface UserPreferences {
 }
 
 export function useUserPreferences() {
+  const { user, isLoaded: clerkLoaded } = useUser();
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedPrefs = Cookies.get('userPreferences');
-    if (storedPrefs) {
-      try {
-        setPreferences(JSON.parse(storedPrefs));
-      } catch (e) {
-        console.error('Error parsing user preferences:', e);
-        setPreferences(null);
+    if (!clerkLoaded) return;
+
+    if (user) {
+      const userPrefs = user.unsafeMetadata.preferences as UserPreferences;
+      if (userPrefs) {
+        setPreferences(userPrefs);
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [user, clerkLoaded]);
 
-  const updatePreferences = (newPrefs: UserPreferences) => {
-    Cookies.set('userPreferences', JSON.stringify(newPrefs), { expires: 365 });
+  const updatePreferences = async (newPrefs: UserPreferences) => {
+    if (user) {
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          preferences: newPrefs,
+        },
+      });
+    }
     setPreferences(newPrefs);
   };
 
-  const clearPreferences = () => {
-    Cookies.remove('userPreferences');
+  const clearPreferences = async () => {
+    if (user) {
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          preferences: null,
+        },
+      });
+    }
     setPreferences(null);
   };
 
   return {
     preferences,
-    isLoading,
+    isLoading: isLoading || !clerkLoaded,
     updatePreferences,
     clearPreferences
   };

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { SignUpButton } from '@clerk/nextjs';
 import QuestionStack from '../components/QuestionStack';
 import SessionSummary from '../components/SessionSummary';
 import Onboarding from '../components/Onboarding';
@@ -9,10 +11,13 @@ import { questionBank } from '../data/questionBank';
 import { motion } from 'motion/react';
 import { shuffleArray } from '../utils/arrayUtils';
 import { useUserPreferences } from '../hooks/useUserPreferences';
+import AuthButton from '../components/AuthButton';
 
 export default function Home() {
   const { preferences, isLoading, updatePreferences } = useUserPreferences();
+  const { isSignedIn } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   
   // All available questions
   const [allQuestions] = useState(questionBank);
@@ -54,9 +59,18 @@ export default function Home() {
   }, [preferences, initializeSession]);
 
   const handleAnswer = (selectedOption: number) => {
-    setAnsweredQuestions(prev => new Set(prev).add(currentQuestionIndex));
+    setAnsweredQuestions(prev => {
+      const newAnswered = new Set(prev).add(currentQuestionIndex);
+      
+      // Show auth prompt after 2 questions if not signed in
+      if (newAnswered.size === 2 && !isSignedIn) {
+        setShowAuthPrompt(true);
+      }
+      
+      return newAnswered;
+    });
+
     const isCorrect = selectedOption === sessionQuestions[currentQuestionIndex].correctAnswer;
-    
     if (isCorrect) {
       setCorrectAnswers(prev => new Set(prev).add(currentQuestionIndex));
     }
@@ -136,12 +150,41 @@ export default function Home() {
     );
   }
 
+  // Show auth prompt overlay
+  if (showAuthPrompt) {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-8 rounded-lg max-w-md mx-4">
+          <h2 className="text-2xl font-crimson font-bold text-gray-900 mb-4">
+            Ready to Track Your Progress?
+          </h2>
+          <p className="text-gray-600 mb-6 font-geist">
+            Sign up now to save your progress, track your performance, and get personalized study recommendations.
+          </p>
+          <div className="flex gap-4 justify-end">
+            <button
+              onClick={() => setShowAuthPrompt(false)}
+              className="px-4 py-2 text-sm font-geist text-gray-700 hover:text-gray-900"
+            >
+              Continue as Guest
+            </button>
+            <SignUpButton mode="modal">
+              <button className="px-4 py-2 text-sm font-geist bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 py-12">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-8" /> {/* Spacer for centering */}
+            <AuthButton />
             <motion.h1 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}

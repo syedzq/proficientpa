@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Crimson_Text, Geist } from "next/font/google";
+import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 
 const crimsonText = Crimson_Text({
@@ -25,8 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${crimsonText.variable} ${geist.variable}`}>
-      <body className="font-geist">{children}</body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={`${crimsonText.variable} ${geist.variable}`}>
+        <body className="font-geist">{children}</body>
+      </html>
+    </ClerkProvider>
   );
 }
