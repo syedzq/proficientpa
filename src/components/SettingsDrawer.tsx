@@ -90,7 +90,7 @@ export default function SettingsDrawer({ preferences, onUpdatePreferences, open,
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
         <Drawer.Content className={`
-          bg-white text-gray-900 flex flex-col fixed z-[60]
+          bg-white text-gray-800 flex flex-col fixed z-[60]
           ${isMobile ? 
             'bottom-0 left-0 right-0 h-[96vh] rounded-t-[10px]' : 
             'bottom-0 right-0 top-0 w-[400px] rounded-l-[10px]'
