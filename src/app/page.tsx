@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import QuestionStack from '../components/QuestionStack';
 import SessionSummary from '../components/SessionSummary';
 import Onboarding from '../components/Onboarding';
@@ -25,7 +25,7 @@ export default function Home() {
   const [showSummary, setShowSummary] = useState(false);
 
   // Filter and select questions based on user preferences
-  const initializeSession = () => {
+  const initializeSession = useCallback(() => {
     if (!preferences) return;
 
     // Filter questions based on preferences
@@ -39,18 +39,19 @@ export default function Home() {
     const { shuffled } = shuffleArray(filteredQuestions);
     const selectedQuestions = shuffled.slice(0, preferences.questionCount);
     setSessionQuestions(selectedQuestions);
-  };
+    setCurrentQuestionIndex(0);
+    setAnsweredQuestions(new Set());
+    setCorrectAnswers(new Set());
+    setSkippedQuestions(new Set());
+    setShowSummary(false);
+  }, [preferences, allQuestions]);
 
   // Initialize session when preferences change
   useEffect(() => {
     if (preferences) {
       initializeSession();
     }
-  }, [preferences]);
-
-  useEffect(() => {
-    initializeSession();
-  }, [initializeSession]);
+  }, [preferences, initializeSession]);
 
   const handleAnswer = (selectedOption: number) => {
     setAnsweredQuestions(prev => new Set(prev).add(currentQuestionIndex));
